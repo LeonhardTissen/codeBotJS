@@ -13,6 +13,11 @@ const token = "YOUR_BOT_TOKEN_HERE";
 exports.token = token;
 ```
 
+### Create `functions.db`:
+```
+touch functions.db
+```
+
 ### Run the bot script:
 ```
 node bot.js
