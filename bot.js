@@ -39,29 +39,17 @@ client.on('messageCreate', (message) => {
 
     if (command === '-save') {
 		
-		if (args.length < 2) {
-			message.channel.send('You need to provide a command name and argument count');
+		if (args.length < 1) {
+			message.channel.send('You need to provide a command name');
 			return;
 		}
 
-		const arg_count = parseInt(args[1][0]);
-		if (arg_count < 0 || arg_count > 9) {
-			message.channel.send('The argument count must be between 0 and 9');
-			return;
-		}
-
-		const raw_code = message.content.replace(command, '').replace(args[0], '').replace(args[1], '');
+		const raw_code = message.content.replace(command, '').replace(args[0], '')
 		const code = raw_code.replace('```js', '').replace('```', '');
 
 		const cmd_name = args[0].toLowerCase();
 
 		let msg = `Your command \`${cmd_name}\` has been saved.`;
-		if (arg_count > 0) {
-			msg += `\nIt has ${arg_count} arguments:\n`;
-			for (let i = 0; i < arg_count; i ++) {
-				msg += `\`arg${i}\` `;
-			}
-		}
 
 		db.run('INSERT INTO functions (name, code) VALUES (?, ?)', [cmd_name, code], (err) => {
 			if (err) {
@@ -85,8 +73,8 @@ client.on('messageCreate', (message) => {
                 return message.channel.send(`Function '${functionName}' not found.`);
             }
 
-			const args = parameters.map((parameter, i) => `const arg${i} = '${parameter}';`).join('');
-            const sandboxed_code = args + row.code;
+			const inp_text = parameters.join(' ');
+            const sandboxed_code = `let inp = "${inp_text}"; ${row.code}`;
 			console.log(sandboxed_code);
             const out_messages = [];
 
