@@ -1,4 +1,4 @@
-const { Client, GatewayIntentBits, MessageCollector } = require('discord.js');
+const { Client, GatewayIntentBits } = require('discord.js');
 const { VM } = require('vm2');
 const { Database } = require('sqlite3');
 
