@@ -1,8 +1,9 @@
-const { Client, GatewayIntentBits } = require('discord.js');
+const { Client, GatewayIntentBits, MessageEmbed, MessageAttachment, AttachmentBuilder } = require('discord.js');
 const { VM } = require('vm2');
 const { Database } = require('sqlite3');
+const { createCanvas } = require('canvas');
 
-const { token } = require('./token')
+const { token } = require('./token');
 
 // Create a new Discord client
 const client = new Client({
@@ -85,13 +86,29 @@ client.on('messageCreate', (message) => {
                         log: (...logArgs) => {
                             out_messages.push(logArgs.join(' '));
                         },
+						post: (cvs) => {
+							console.log(cvs);
+							message.channel.send({ 
+								files: [
+									new AttachmentBuilder(cvs.toBuffer(), {name: 'image.png'})
+								] 
+							});
+						}
                     },
+					canvas: (width, height) => {
+						const cvs = createCanvas(width, height);
+						const ctx = cvs.getContext('2d');
+						return [cvs, ctx];
+					}
                 },
             });
 
             try {
                 sandbox.run(sandboxed_code);
-                message.channel.send(out_messages.join('\n'));
+				const combined_messages = out_messages.join('\n');
+				if (combined_messages !== '') {
+					message.channel.send(combined_messages);
+				}
             } catch (error) {
                 message.channel.send(`Error:\n\`\`\`${error}\`\`\``);
             }

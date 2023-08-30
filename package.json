@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "canvas": "^2.11.2",
     "discord.js": "^14.13.0",
     "sqlite3": "^5.1.6",
     "vm2": "^3.9.19"
