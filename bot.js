@@ -50,18 +50,30 @@ client.on('messageCreate', (message) => {
 
 		const cmd_name = args[0].toLowerCase();
 
-		db.run('INSERT OR REPLACE INTO functions (name, code) VALUES (?, ?)', [cmd_name, code], (err) => {
+		db.get('SELECT code FROM functions WHERE name = ?', [cmd_name], (err, row) => {
 			if (err) {
-				message.channel.send(`Something unexpected happened: ${err.message}`);
+				message.channel.send(`Error checking existing function: ${err.message}`);
 				return;
 			}
-
-			if (db.changes > 0) {
-				message.channel.send(`:warning: A function with the name \`${cmd_name}\` has been overwritten.`);
+		
+			if (row) {
+				const previousCode = row.code;
+				db.run('UPDATE functions SET code = ? WHERE name = ?', [code, cmd_name], (updateErr) => {
+					if (updateErr) {
+						message.channel.send(`Error updating function: ${updateErr.message}`);
+						return;
+					}
+					message.channel.send(`:warning: Function \`${cmd_name}\` has been updated.\nPrevious code:\n\`\`\`js\n${previousCode}\`\`\``);
+				});
 			} else {
-				message.channel.send(`Your command \`${cmd_name}\` has been saved.`);
+				db.run('INSERT INTO functions (name, code) VALUES (?, ?)', [cmd_name, code], (insertErr) => {
+					if (insertErr) {
+						message.channel.send(`Something unexpected happened: ${insertErr.message}`);
+						return;
+					}
+					message.channel.send(`Function \`${cmd_name}\` has been saved.`);
+				});
 			}
-			return;
 		});
 	} else if (command === '-raw') {
 		const [functionName] = args;
