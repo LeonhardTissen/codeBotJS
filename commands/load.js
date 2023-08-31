@@ -31,7 +31,7 @@ function load(args, channel) {
 		let may_take_longer = false;
 
 		const sandbox = new VM({
-			timeout: 1000,
+			timeout: 3500,
 			sandbox: {
 				console: {
 					// Store any logged messages and send to the Discord at the end of execution
