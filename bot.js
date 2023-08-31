@@ -142,12 +142,17 @@ client.on('messageCreate', (message) => {
 							});
 						}
                     },
-					// Since vm2 doesn't have Canvas by default, have an easy interface for creating a canvas
+					// Since vm2 doesn't have these by default, have an easy interface for creating a canvas
 					canvas: (width, height) => {
 						const cvs = createCanvas(width, height);
 						const ctx = cvs.getContext('2d');
 						return [cvs, ctx];
-					}
+					},
+					image: (src) => {
+						const img = new Image();
+						img.src = src;
+						return img;
+					},
                 },
             });
 
