@@ -165,8 +165,8 @@ client.on('messageCreate', (message) => {
 
 				// Send them to the Discord if there are any
 				if (combined_messages !== '') {
-					if (combined_messages.length > 4000) {
-						message.channel.send(`Message too long (${combined_messages.length} > 4000)`)
+					if (combined_messages.length > 2000) {
+						message.channel.send(`Message too long (${combined_messages.length} > 2000)`)
 					} else {
 						message.channel.send(combined_messages);
 					}
