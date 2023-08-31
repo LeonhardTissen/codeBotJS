@@ -1,7 +1,7 @@
 const { Client, GatewayIntentBits, ActivityType, AttachmentBuilder } = require('discord.js');
 const { VM } = require('vm2');
 const { Database } = require('sqlite3');
-const { createCanvas } = require('canvas');
+const { createCanvas, loadImage } = require('canvas');
 
 // Load token string from another file
 const { token } = require('./token');
@@ -148,10 +148,8 @@ client.on('messageCreate', (message) => {
 						const ctx = cvs.getContext('2d');
 						return [cvs, ctx];
 					},
-					image: (src) => {
-						const img = new Image();
-						img.src = src;
-						return img;
+					image: async (src) => {
+						return await loadImage(src);
 					},
                 },
             });
