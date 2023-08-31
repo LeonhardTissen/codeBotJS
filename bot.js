@@ -3,6 +3,7 @@ const { VM } = require('vm2');
 const { Database } = require('sqlite3');
 const { createCanvas } = require('canvas');
 
+// Load token string from another file
 const { token } = require('./token');
 
 // Create a new Discord client
@@ -28,6 +29,7 @@ client.once('ready', () => {
 	});
 });
 
+// Load the functions.db database
 const db = new Database('functions.db');
 
 // Create a table to store functions if it doesn't exist
@@ -46,7 +48,9 @@ client.on('messageCreate', (message) => {
     const [command, ...args] = message.content.replace('\n', ' ').split(' ');
 
     if (command === '-save') {
-		
+		/*
+		Store a new function or overwrite existing code
+		*/
 		if (args.length < 1) {
 			message.channel.send('You need to provide a command name');
 			return;
@@ -64,6 +68,7 @@ client.on('messageCreate', (message) => {
 			}
 		
 			if (row) {
+				// There is existing code under that function name, replace it and display the old code
 				const previousCode = row.code;
 				db.run('UPDATE functions SET code = ? WHERE name = ?', [code, cmd_name], (updateErr) => {
 					if (updateErr) {
@@ -73,6 +78,7 @@ client.on('messageCreate', (message) => {
 					message.channel.send(`:warning: Function \`${cmd_name}\` has been updated.\nPrevious code:\n\`\`\`js\n${previousCode}\`\`\``);
 				});
 			} else {
+				// A new function is created, insert it into the database
 				db.run('INSERT INTO functions (name, code) VALUES (?, ?)', [cmd_name, code], (insertErr) => {
 					if (insertErr) {
 						message.channel.send(`Something unexpected happened: ${insertErr.message}`);
@@ -83,6 +89,9 @@ client.on('messageCreate', (message) => {
 			}
 		});
 	} else if (command === '-raw') {
+		/*
+		Viewing the raw source code of any stored function
+		*/
 		const [functionName] = args;
 		
 		db.get('SELECT code FROM functions WHERE name = ?', [functionName], (err, row) => {
@@ -96,6 +105,9 @@ client.on('messageCreate', (message) => {
 			message.channel.send(`Here's the code of \`${functionName}\`:\n\`\`\`js\n${row.code}\`\`\``);
 		});
     } else if (command === '-load') {
+		/*
+		Loading and executing a function
+		*/
         const [functionName, ...parameters] = args;
 
         db.get('SELECT code FROM functions WHERE name = ?', [functionName], (err, row) => {
@@ -107,19 +119,22 @@ client.on('messageCreate', (message) => {
             }
 
 			const inp_text = parameters.join(' ');
+			// Define the variable "inp" as the inputted text before the code.
             const sandboxed_code = `let inp = "${inp_text}"; ${row.code}`;
-			console.log(sandboxed_code);
+
+			// An array for storing the console.log message the code produce.
             const out_messages = [];
 
             const sandbox = new VM({
                 timeout: 1000,
                 sandbox: {
                     console: {
+						// Store any logged messages and send to the Discord at the end of execution
                         log: (...logArgs) => {
                             out_messages.push(logArgs.join(' '));
                         },
+						// An interface to post a canvas to the Discord channel
 						post: (cvs) => {
-							console.log(cvs);
 							message.channel.send({ 
 								files: [
 									new AttachmentBuilder(cvs.toBuffer(), {name: 'image.png'})
@@ -127,6 +142,7 @@ client.on('messageCreate', (message) => {
 							});
 						}
                     },
+					// Since vm2 doesn't have Canvas by default, have an easy interface for creating a canvas
 					canvas: (width, height) => {
 						const cvs = createCanvas(width, height);
 						const ctx = cvs.getContext('2d');
@@ -136,12 +152,18 @@ client.on('messageCreate', (message) => {
             });
 
             try {
+				// Run the sandboxed code
                 sandbox.run(sandboxed_code);
+
+				// Combine the output messages from the code
 				const combined_messages = out_messages.join('\n');
+
+				// Send them to the Discord if there are any
 				if (combined_messages !== '') {
 					message.channel.send(combined_messages);
 				}
             } catch (error) {
+				// The program ran into an error while executing
                 message.channel.send(`Error:\n\`\`\`${error}\`\`\``);
             }
         });
