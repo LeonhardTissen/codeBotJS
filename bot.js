@@ -50,18 +50,18 @@ client.on('messageCreate', (message) => {
 
 		const cmd_name = args[0].toLowerCase();
 
-		let msg = `Your command \`${cmd_name}\` has been saved.`;
-
-		db.run('INSERT INTO functions (name, code) VALUES (?, ?)', [cmd_name, code], (err) => {
+		db.run('INSERT OR REPLACE INTO functions (name, code) VALUES (?, ?)', [cmd_name, code], (err) => {
 			if (err) {
-				if (err.message.includes('SQLITE_CONSTRAINT: UNIQUE')) {
-					message.channel.send(`A function with the name \`${cmd_name}\` already exists.`);
-				} else {
-					message.channel.send(`Something unexpected happened: ${err.message}`);
-				}
+				message.channel.send(`Something unexpected happened: ${err.message}`);
 				return;
 			}
-			message.channel.send(msg);
+
+			if (db.changes > 0) {
+				message.channel.send(`:warning: A function with the name \`${cmd_name}\` has been overwritten.`);
+			} else {
+				message.channel.send(`Your command \`${cmd_name}\` has been saved.`);
+			}
+			return;
 		});
 	} else if (command === '-raw') {
 		const [functionName] = args;
