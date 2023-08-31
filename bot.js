@@ -131,6 +131,7 @@ client.on('messageCreate', (message) => {
 			const out_images = [];
 
 			let gif_speed = 100;
+			let may_take_longer = false;
 
             const sandbox = new VM({
                 timeout: 1000,
@@ -156,6 +157,7 @@ client.on('messageCreate', (message) => {
 						return [cvs, ctx];
 					},
 					image: async (src) => {
+						may_take_longer = true;
 						try {
 							return await loadImage(src);
 						} catch (err) {}
@@ -182,42 +184,14 @@ client.on('messageCreate', (message) => {
 					}
 				}
 
-				// If there is one image attached, send it as a .png
-				if (out_images.length === 1) {
-					message.channel.send({ 
-						files: [
-							new AttachmentBuilder(out_images[0].toBuffer(), {name: 'image.png'})
-						] 
-					});
+				if (may_take_longer) {
+					setTimeout(() => {
+						sendImages(out_images, message.channel, gif_speed);
+					}, 500);
+				} else {
+					sendImages(out_images, message.channel, gif_speed);
 				}
-				// If there is more than one ctx attached, send it as a .gif using GIFEncoder
-				else if (out_images.length >= 2) {
-					const encoder = new GIFEncoder(out_images[0].width, out_images[0].height);
-					const gifStream = fs.createWriteStream('animated.gif');
-
-					encoder.createReadStream().pipe(gifStream);
-					encoder.start();
-					encoder.setRepeat(0);
-					encoder.setDelay(gif_speed);
-
-					out_images.forEach(async (cvs, i) => {
-						encoder.addFrame(cvs.getContext('2d'));
-
-						if (i === out_images.length - 1) {
-							encoder.finish();
-							setTimeout(() => {
-								message.channel.send({
-									files: [
-										{
-											attachment: 'animated.gif',
-											name: 'animated.gif'
-										}
-									]
-								});
-							}, 1000)
-						}
-					});
-				}
+				
             } catch (error) {
 				// The program ran into an error while executing
                 message.channel.send(`Error:\n\`\`\`${error}\`\`\``);
@@ -225,6 +199,45 @@ client.on('messageCreate', (message) => {
         });
     }
 });
+
+function sendImages(out_images, channel, gif_speed) {
+	// If there is one image attached, send it as a .png
+	if (out_images.length === 1) {
+		channel.send({ 
+			files: [
+				new AttachmentBuilder(out_images[0].toBuffer(), {name: 'image.png'})
+			] 
+		});
+	}
+	// If there is more than one ctx attached, send it as a .gif using GIFEncoder
+	else if (out_images.length >= 2) {
+		const encoder = new GIFEncoder(out_images[0].width, out_images[0].height);
+		const gifStream = fs.createWriteStream('animated.gif');
+
+		encoder.createReadStream().pipe(gifStream);
+		encoder.start();
+		encoder.setRepeat(0);
+		encoder.setDelay(gif_speed);
+
+		out_images.forEach(async (cvs, i) => {
+			encoder.addFrame(cvs.getContext('2d'));
+
+			if (i === out_images.length - 1) {
+				encoder.finish();
+				setTimeout(() => {
+					channel.send({
+						files: [
+							{
+								attachment: 'animated.gif',
+								name: 'animated.gif'
+							}
+						]
+					});
+				}, 1000)
+			}
+		});
+	}
+}
 
 // Log in to Discord with the bot's token
 client.login(token);
