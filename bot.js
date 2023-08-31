@@ -1,7 +1,7 @@
 const { Client, GatewayIntentBits, ActivityType, AttachmentBuilder } = require('discord.js');
 const { VM } = require('vm2');
 const { Database } = require('sqlite3');
-const { createCanvas, loadImage } = require('canvas');
+const { createCanvas, loadImage, Canvas } = require('canvas');
 const GIFEncoder = require('gifencoder');
 const fs = require('fs');
 
@@ -130,8 +130,7 @@ client.on('messageCreate', (message) => {
 			// An array for storing the canvas images the code produces.
 			const out_images = [];
 
-			// An array for storing frames for the GIFEncoder the code produces.
-			const out_ctxs = [];
+			let gif_speed = 100;
 
             const sandbox = new VM({
                 timeout: 1000,
@@ -143,12 +142,12 @@ client.on('messageCreate', (message) => {
                         },
 						// An interface to post a canvas to the Discord channel
 						post: (cvs) => {
-							out_images.push(cvs);
+							// Save contents to a buffer
+							const bcvs = new Canvas(cvs.width, cvs.height);
+							const bctx = bcvs.getContext('2d');
+							bctx.drawImage(cvs, 0, 0, cvs.width, cvs.height);
+							out_images.push(bcvs);
 						},
-						// An interface to save a frame to the GIF encoder
-						addframe: (ctx) => {
-							out_ctxs.push(ctx);
-						}
                     },
 					// Since vm2 doesn't have these by default, have an easy interface for creating a canvas
 					canvas: (width, height) => {
@@ -161,6 +160,9 @@ client.on('messageCreate', (message) => {
 							return await loadImage(src);
 						} catch (err) {}
 					},
+					gifspeed: (ms) => {
+						gif_speed = ms;
+					}
                 },
             });
 
@@ -181,7 +183,7 @@ client.on('messageCreate', (message) => {
 				}
 
 				// If there is one image attached, send it as a .png
-				if (out_images.length > 0) {
+				if (out_images.length === 1) {
 					message.channel.send({ 
 						files: [
 							new AttachmentBuilder(out_images[0].toBuffer(), {name: 'image.png'})
@@ -189,28 +191,30 @@ client.on('messageCreate', (message) => {
 					});
 				}
 				// If there is more than one ctx attached, send it as a .gif using GIFEncoder
-				if (out_ctxs.length > 0) {
-					const encoder = new GIFEncoder(250, 250);
+				else if (out_images.length >= 2) {
+					const encoder = new GIFEncoder(out_images[0].width, out_images[0].height);
 					const gifStream = fs.createWriteStream('animated.gif');
 
 					encoder.createReadStream().pipe(gifStream);
 					encoder.start();
 					encoder.setRepeat(0);
-					encoder.setDelay(200);
+					encoder.setDelay(gif_speed);
 
-					out_ctxs.forEach(async (ctx, i) => {
-						encoder.addFrame(ctx);
+					out_images.forEach(async (cvs, i) => {
+						encoder.addFrame(cvs.getContext('2d'));
 
-						if (i === out_ctxs.length - 1) {
+						if (i === out_images.length - 1) {
 							encoder.finish();
-							message.channel.send({
-								files: [
-									{
-										attachment: 'animated.gif',
-										name: 'animated.gif'
-									}
-								]
-							});
+							setTimeout(() => {
+								message.channel.send({
+									files: [
+										{
+											attachment: 'animated.gif',
+											name: 'animated.gif'
+										}
+									]
+								});
+							}, 1000)
 						}
 					});
 				}
