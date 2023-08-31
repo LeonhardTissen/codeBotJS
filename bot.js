@@ -63,6 +63,19 @@ client.on('messageCreate', (message) => {
 			}
 			message.channel.send(msg);
 		});
+	} else if (command === '-raw') {
+		const [functionName] = args;
+		
+		db.get('SELECT code FROM functions WHERE name = ?', [functionName], (err, row) => {
+            if (err) {
+                return message.channel.send(`Error retrieving function: ${err.message}`);
+            }
+            if (!row) {
+                return message.channel.send(`Function '${functionName}' not found.`);
+            }
+
+			message.channel.send(`Here's the code of \`${functionName}\`:\n\`\`\`js\n${row.code}\`\`\``);
+		});
     } else if (command === '-load') {
         const [functionName, ...parameters] = args;
 
