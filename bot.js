@@ -1,4 +1,4 @@
-const { Client, GatewayIntentBits, MessageEmbed, MessageAttachment, AttachmentBuilder } = require('discord.js');
+const { Client, GatewayIntentBits, ActivityType, AttachmentBuilder } = require('discord.js');
 const { VM } = require('vm2');
 const { Database } = require('sqlite3');
 const { createCanvas } = require('canvas');
@@ -19,6 +19,13 @@ const client = new Client({
 // Set up the bot's ready event
 client.once('ready', () => {
 	console.log('Bot is ready');
+	client.user.setPresence({ 
+		activities: [{ 
+			name: 'Warze.org/cmd', 
+			type: ActivityType.Listening,
+		}], 
+		status: 'online' 
+	});
 });
 
 const db = new Database('functions.db');
