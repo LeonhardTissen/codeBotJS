@@ -149,7 +149,9 @@ client.on('messageCreate', (message) => {
 						return [cvs, ctx];
 					},
 					image: async (src) => {
-						return await loadImage(src);
+						try {
+							return await loadImage(src);
+						} catch (err) {}
 					},
                 },
             });
@@ -163,7 +165,11 @@ client.on('messageCreate', (message) => {
 
 				// Send them to the Discord if there are any
 				if (combined_messages !== '') {
-					message.channel.send(combined_messages);
+					try {
+						message.channel.send(combined_messages);
+					} catch (err) {
+						message.channel.send(`Message too long (${combined_messages.length} > 4000)`)
+					}
 				}
             } catch (error) {
 				// The program ran into an error while executing
