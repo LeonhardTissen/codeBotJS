@@ -2,6 +2,8 @@ const { Client, GatewayIntentBits, ActivityType, AttachmentBuilder } = require('
 const { VM } = require('vm2');
 const { Database } = require('sqlite3');
 const { createCanvas, loadImage } = require('canvas');
+const GIFEncoder = require('gifencoder');
+const fs = require('fs');
 
 // Load token string from another file
 const { token } = require('./token');
@@ -122,8 +124,14 @@ client.on('messageCreate', (message) => {
 			// Define the variable "inp" as the inputted text before the code.
             const sandboxed_code = `let inp = "${inp_text}"; ${row.code}`;
 
-			// An array for storing the console.log message the code produce.
+			// An array for storing the console.log messages the code produces.
             const out_messages = [];
+
+			// An array for storing the canvas images the code produces.
+			const out_images = [];
+
+			// An array for storing frames for the GIFEncoder the code produces.
+			const out_ctxs = [];
 
             const sandbox = new VM({
                 timeout: 1000,
@@ -135,11 +143,11 @@ client.on('messageCreate', (message) => {
                         },
 						// An interface to post a canvas to the Discord channel
 						post: (cvs) => {
-							message.channel.send({ 
-								files: [
-									new AttachmentBuilder(cvs.toBuffer(), {name: 'image.png'})
-								] 
-							});
+							out_images.push(cvs);
+						},
+						// An interface to save a frame to the GIF encoder
+						addframe: (ctx) => {
+							out_ctxs.push(ctx);
 						}
                     },
 					// Since vm2 doesn't have these by default, have an easy interface for creating a canvas
@@ -170,6 +178,41 @@ client.on('messageCreate', (message) => {
 					} else {
 						message.channel.send(combined_messages);
 					}
+				}
+
+				// If there is one image attached, send it as a .png
+				if (out_images.length > 0) {
+					message.channel.send({ 
+						files: [
+							new AttachmentBuilder(out_images[0].toBuffer(), {name: 'image.png'})
+						] 
+					});
+				}
+				// If there is more than one ctx attached, send it as a .gif using GIFEncoder
+				if (out_ctxs.length > 0) {
+					const encoder = new GIFEncoder(250, 250);
+					const gifStream = fs.createWriteStream('animated.gif');
+
+					encoder.createReadStream().pipe(gifStream);
+					encoder.start();
+					encoder.setRepeat(0);
+					encoder.setDelay(200);
+
+					out_ctxs.forEach(async (ctx, i) => {
+						encoder.addFrame(ctx);
+
+						if (i === out_ctxs.length - 1) {
+							encoder.finish();
+							message.channel.send({
+								files: [
+									{
+										attachment: 'animated.gif',
+										name: 'animated.gif'
+									}
+								]
+							});
+						}
+					});
 				}
             } catch (error) {
 				// The program ran into an error while executing

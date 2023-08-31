@@ -2,6 +2,8 @@
   "dependencies": {
     "canvas": "^2.11.2",
     "discord.js": "^14.13.0",
+    "fs": "^0.0.1-security",
+    "gifencoder": "^2.0.1",
     "sqlite3": "^5.1.6",
     "vm2": "^3.9.19"
   }
