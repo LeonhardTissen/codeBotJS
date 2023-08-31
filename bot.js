@@ -1,23 +1,12 @@
-const { Client, GatewayIntentBits, ActivityType, AttachmentBuilder } = require('discord.js');
+const { ActivityType, AttachmentBuilder } = require('discord.js');
 const { VM } = require('vm2');
-const { Database } = require('sqlite3');
 const { createCanvas, loadImage, Canvas } = require('canvas');
 const GIFEncoder = require('gifencoder');
 const fs = require('fs');
 
-// Load token string from another file
 const { token } = require('./token');
-
-// Create a new Discord client
-const client = new Client({
-	intents: [
-		GatewayIntentBits.Guilds,
-		GatewayIntentBits.GuildMessages,
-		GatewayIntentBits.MessageContent,
-		GatewayIntentBits.GuildMembers,
-		GatewayIntentBits.GuildPresences,
-	],
-});
+const { db } = require('./db');
+const { client } = require('./client');
 
 // Set up the bot's ready event
 client.once('ready', () => {
@@ -29,18 +18,6 @@ client.once('ready', () => {
 		}], 
 		status: 'online' 
 	});
-});
-
-// Load the functions.db database
-const db = new Database('functions.db');
-
-// Create a table to store functions if it doesn't exist
-db.serialize(() => {
-    db.run(`CREATE TABLE IF NOT EXISTS functions (
-        id INTEGER PRIMARY KEY,
-        name TEXT NOT NULL UNIQUE,
-        code TEXT NOT NULL
-    )`);
 });
 
 // Set up the message event
