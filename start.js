@@ -5,6 +5,7 @@ const { createClient } = require('./client');
 const { save } = require('./commands/save');
 const { raw } = require('./commands/raw');
 const { load } = require('./commands/load');
+const { list } = require('./commands/list');
 
 function startBot() {
 	const client = createClient();
@@ -20,6 +21,8 @@ function startBot() {
 			raw(args, message.channel);
 		} else if (command === '-load') {
 			load(args, message.channel);
+		} else if (command === '-list') {
+			list(message.channel);
 		}
 	});
 	
