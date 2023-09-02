@@ -28,7 +28,11 @@ function save(args, channel, content, command) {
 					channel.send(`Error updating function: ${updateErr.message}`);
 					return;
 				}
-				channel.send(`:warning: Function \`${cmd_name}\` has been updated.\nPrevious code:\n\`\`\`js\n${previousCode}\`\`\``);
+				try {
+					channel.send(`:warning: Function \`${cmd_name}\` has been updated.\nPrevious code:\n\`\`\`js\n${previousCode}\`\`\``);
+				} catch (err) {
+					channel.send("Previous code too long. I'll find a fix later.");
+				}
 			});
 		} else {
 			// A new function is created, insert it into the database

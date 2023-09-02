@@ -1,5 +1,6 @@
 const GIFEncoder = require("gifencoder");
 const fs = require("fs");
+const { AttachmentBuilder } = require("discord.js");
 
 function sendImages(out_images, channel, gif_speed) {
 	// If there is one image attached, send it as a .png

@@ -13,8 +13,12 @@ function raw(args, channel) {
 		if (!row) {
 			return channel.send(`Function '${functionName}' not found.`);
 		}
-
-		channel.send(`Here's the code of \`${functionName}\`:\n\`\`\`js\n${row.code}\`\`\``);
+		
+		try {
+			channel.send(`Here's the code of \`${functionName}\`:\n\`\`\`js\n${row.code}\`\`\``);
+		} catch (err) {
+			channel.send("Code too long. I'll find a fix later.");
+		}
 	});
 }
 exports.raw = raw;
