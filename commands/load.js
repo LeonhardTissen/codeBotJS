@@ -91,7 +91,7 @@ function load(args, channel) {
 			
 		} catch (error) {
 			// The program ran into an error while executing
-			channel.send(`Error:\n\`\`\`${error}\`\`\``);
+			channel.send(`Error occured:\n\`\`\`${error}\`\`\``);
 		}
 	});
 }
