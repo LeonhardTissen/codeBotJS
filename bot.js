@@ -26,5 +26,6 @@ client.login(token);
 
 // Close the database connection when not in use
 process.on('exit', () => {
+    client.destroy();
     db.close();
 });
