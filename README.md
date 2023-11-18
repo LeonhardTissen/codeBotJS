@@ -20,5 +20,5 @@ touch functions.db
 
 ### Run the bot script:
 ```
-node bot.js
+node master.js
 ```
