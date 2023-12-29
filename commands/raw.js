@@ -14,7 +14,14 @@ function raw(args, channel) {
 			return channel.send(`Function '${functionName}' not found.`);
 		}
 		
-		channel.send(`Here's the code of \`${functionName}\`:\n\`\`\`js\n${row.code}\`\`\`[Debug and edit faster here](https://code.warze.org?function=${functionName})`);
+		const fullCode = `Here's the code of \`${functionName}\`:\n\`\`\`js\n${row.code}\`\`\``;
+		const debugLink = `[Debug and edit faster here](https://code.warze.org?function=${functionName})`;
+		const fullMessage = `${fullCode}\n${debugLink}`;
+		if (fullMessage.length > 2000) {
+			return channel.send(`The code for this function is too long to send, but you can still view and edit it here:\n${debugLink}`);
+		} else {
+			channel.send(`${fullCode}${debugLink}`);
+		}
 	});
 }
 exports.raw = raw;
