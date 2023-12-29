@@ -14,7 +14,7 @@ function raw(args, channel) {
 			return channel.send(`Function '${functionName}' not found.`);
 		}
 		
-		channel.send(`Here's the code of \`${functionName}\`:\n\`\`\`js\n${row.code}\`\`\``);
+		channel.send(`Here's the code of \`${functionName}\`:\n\`\`\`js\n${row.code}\`\`\`[Debug and edit faster here](https://code.warze.org?function=${functionName})`);
 	});
 }
 exports.raw = raw;
