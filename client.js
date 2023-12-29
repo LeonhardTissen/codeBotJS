@@ -9,6 +9,7 @@ function createClient() {
 			GatewayIntentBits.MessageContent,
 			GatewayIntentBits.GuildMembers,
 			GatewayIntentBits.GuildPresences,
+			GatewayIntentBits.DirectMessages
 		],
 	});
 	
