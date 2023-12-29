@@ -3,14 +3,8 @@ const { Client, GatewayIntentBits, ActivityType } = require("discord.js");
 function createClient() {
 	// Create a new Discord client
 	const client = new Client({
-		intents: [
-			GatewayIntentBits.Guilds,
-			GatewayIntentBits.GuildMessages,
-			GatewayIntentBits.MessageContent,
-			GatewayIntentBits.GuildMembers,
-			GatewayIntentBits.GuildPresences,
-			GatewayIntentBits.DirectMessages
-		],
+		intents: 131071,
+		partials: ['CHANNEL', 'GUILD_MEMBER', 'GUILD_SCHEDULED_EVENT', 'MESSAGE', 'REACTION', 'USER']
 	});
 	
 	// Set up the bot's ready event
