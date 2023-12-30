@@ -84,7 +84,7 @@ function load(args, channel) {
 			if (may_take_longer) {
 				setTimeout(() => {
 					sendImages(out_images, channel, gif_speed);
-				}, 500);
+				}, 2000);
 			} else {
 				sendImages(out_images, channel, gif_speed);
 			}
