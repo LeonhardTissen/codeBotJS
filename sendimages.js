@@ -5,6 +5,8 @@ const { AttachmentBuilder } = require("discord.js");
 function sendImages(out_images, channel, gif_speed) {
 	const uuid = Math.random().toString(36).substring(7);
 
+	console.log(`Generated ${out_images.length} images`);
+	
 	// If there is one image attached, send it as a .png
 	if (out_images.length === 1) {
 		channel.send({ 
