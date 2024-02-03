@@ -2,6 +2,7 @@ const { db } = require("../db");
 const { VM } = require("vm2");
 const { Canvas, loadImage, createCanvas } = require("canvas");
 const { sendImages } = require("../sendimages");
+const fetch = require("node-fetch");
 
 function load(args, channel) {
 	/*
