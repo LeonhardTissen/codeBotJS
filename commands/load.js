@@ -64,16 +64,10 @@ function load(args, channel) {
 					gif_speed = ms;
 				},
 				fetch: async (url) => {
-					if (has_fetched) {
-						return;
-					}
+					if (has_fetched) return;
 					has_fetched = true;
 					may_take_longer = true;
-					try {
-						const response = await fetch(url);
-						const buffer = await response.buffer();
-						return buffer;
-					} catch (err) {}
+					return fetch(url);
 				}
 			},
 		});
