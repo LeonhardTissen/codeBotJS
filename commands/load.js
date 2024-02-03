@@ -29,6 +29,7 @@ function load(args, channel) {
 
 		let gif_speed = 100;
 		let may_take_longer = false;
+		let has_fetched = false;
 
 		const sandbox = new VM({
 			timeout: 3500,
@@ -61,6 +62,18 @@ function load(args, channel) {
 				},
 				gifspeed: (ms) => {
 					gif_speed = ms;
+				},
+				fetch: async (url) => {
+					if (has_fetched) {
+						return;
+					}
+					has_fetched = true;
+					may_take_longer = true;
+					try {
+						const response = await fetch(url);
+						const buffer = await response.buffer();
+						return buffer;
+					} catch (err) {}
 				}
 			},
 		});
