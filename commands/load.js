@@ -67,6 +67,7 @@ function load(args, channel) {
 				fetch: (url) => {
 					if (has_fetched) return;
 					has_fetched = true;
+					console.log('Fetching', url);
 					return fetch(url);
 				}
 			},
