@@ -66,7 +66,6 @@ function load(args, channel) {
 				fetch: async (url) => {
 					if (has_fetched) return;
 					has_fetched = true;
-					may_take_longer = true;
 					return fetch(url);
 				}
 			},
