@@ -64,12 +64,6 @@ function load(args, channel) {
 				gifspeed: (ms) => {
 					gif_speed = ms;
 				},
-				fetch: (url) => {
-					if (has_fetched) return;
-					has_fetched = true;
-					console.log('Fetching', url);
-					return fetch(url);
-				}
 			},
 		});
 
