@@ -31,7 +31,9 @@ function sendImages(out_images, channel, gif_speed) {
 			if (i === out_images.length - 1) {
 				encoder.finish();
 				setTimeout(() => {
-					try {
+					// Check if below 25MB
+					const stats = fs.statSync(`animated_${uuid}.gif`);
+					if (stats.size < 25000000) {
 						channel.send({
 							files: [
 								{
@@ -40,7 +42,7 @@ function sendImages(out_images, channel, gif_speed) {
 								}
 							]
 						});
-					} catch (err) {
+					} else {
 						channel.send(`Too large for discord. View here: https://s.warze.org/codeBot/animated_${uuid}.gif`);
 
 						fs.rename(`animated_${uuid}.gif`, `/home/warzeorg/storage/codeBot/animated_${uuid}.gif`, (err) => {
