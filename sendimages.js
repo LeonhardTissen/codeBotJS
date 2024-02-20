@@ -1,10 +1,11 @@
 const GIFEncoder = require("gifencoder");
 const fs = require("fs");
 const { AttachmentBuilder } = require("discord.js");
+const { v4 } = require("uuid");
 
 function sendImages(out_images, channel, gif_speed) {
-	const uuid = Math.random().toString(36).substring(7);
-
+	const uuid = v4().replaceAll('-', '');
+	
 	console.log(`Generated ${out_images.length} images`);
 	
 	// If there is one image attached, send it as a .png
