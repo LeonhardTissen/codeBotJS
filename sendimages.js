@@ -31,14 +31,22 @@ function sendImages(out_images, channel, gif_speed) {
 			if (i === out_images.length - 1) {
 				encoder.finish();
 				setTimeout(() => {
-					channel.send({
-						files: [
-							{
-								attachment: `animated_${uuid}.gif`,
-								name: `animated_${uuid}.gif`
-							}
-						]
-					});
+					try {
+						channel.send({
+							files: [
+								{
+									attachment: `animated_${uuid}.gif`,
+									name: `animated_${uuid}.gif`
+								}
+							]
+						});
+					} catch (err) {
+						channel.send(`Too large for discord. View here: https://s.warze.org/codeBot/animated_${uuid}.gif`);
+
+						fs.rename(`animated_${uuid}.gif`, `/home/warzeorg/storage/codeBot/animated_${uuid}.gif`, (err) => {
+							console.log(err);
+						});
+					}
 				}, 1000)
 			}
 		});
