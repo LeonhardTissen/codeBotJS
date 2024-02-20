@@ -33,7 +33,7 @@ function load(args, channel) {
 		let has_fetched = false;
 
 		const sandbox = new VM({
-			timeout: 10000,
+			timeout: 20000,
 			sandbox: {
 				console: {
 					// Store any logged messages and send to the Discord at the end of execution
