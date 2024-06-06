@@ -13,7 +13,7 @@ function startBot() {
 	client.on('messageCreate', (message) => {
 		if (message.author.bot) return;
 
-		if (!message.content.startsWith(';')) return;
+		if (!message.content.startsWith('-')) return;
 
 		const content = message.content.slice(1);
 	
