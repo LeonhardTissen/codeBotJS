@@ -21,7 +21,7 @@ function startBot() {
 	
 		switch (command) {
 			case 'save':
-				save(args, message.channel, message.content, command);
+				save(args, message.channel, content, command);
 				break;
 			case 'raw':
 				raw(args, message.channel);
