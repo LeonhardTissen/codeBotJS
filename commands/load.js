@@ -4,13 +4,17 @@ const { Canvas, loadImage, createCanvas } = require("canvas");
 const { sendImages } = require("../sendimages");
 const fetch = require("node-fetch");
 
-function load(args, channel) {
+async function sleep(ms) {
+	return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+async function load(args, channel) {
 	/*
 	Loading and executing a function
 	*/
 	const [functionName, ...parameters] = args;
 
-	db.get('SELECT code FROM functions WHERE name = ?', [functionName], (err, row) => {
+	db.get('SELECT code FROM functions WHERE name = ?', [functionName], async (err, row) => {
 		if (err) {
 			return channel.send(`Error retrieving function: ${err.message}`);
 		}
@@ -20,7 +24,11 @@ function load(args, channel) {
 
 		const inp_text = parameters.join(' ');
 		// Define the variable "inp" as the inputted text before the code.
-		const sandboxed_code = `let inp = "${inp_text}"; ${row.code}`;
+		const sandboxed_code = `
+let inp = "${inp_text}";
+(async () => {
+	${row.code}
+})()`;
 
 		// An array for storing the console.log messages the code produces.
 		const out_messages = [];
@@ -30,7 +38,6 @@ function load(args, channel) {
 
 		let gif_speed = 100;
 		let may_take_longer = false;
-		let has_fetched = false;
 
 		const sandbox = new VM({
 			timeout: 20000,
@@ -61,6 +68,13 @@ function load(args, channel) {
 						return await loadImage(src);
 					} catch (err) {}
 				},
+				json: async (url) => {
+					may_take_longer = true;
+					try {
+						const res = await fetch(url);
+						return await res.json();
+					} catch (err) {}
+				},
 				gifspeed: (ms) => {
 					gif_speed = ms;
 				},
@@ -70,6 +84,13 @@ function load(args, channel) {
 		try {
 			// Run the sandboxed code
 			sandbox.run(sandboxed_code);
+
+			if (may_take_longer) {
+				while (out_images.length === 0 && out_messages.length === 0) {
+					console.log('Waiting for output...');
+					await sleep(100);
+				}
+			}
 
 			// Combine the output messages from the code
 			const combined_messages = out_messages.join('\n');
@@ -83,13 +104,7 @@ function load(args, channel) {
 				}
 			}
 
-			if (may_take_longer) {
-				setTimeout(() => {
-					sendImages(out_images, channel, gif_speed);
-				}, 2000);
-			} else {
-				sendImages(out_images, channel, gif_speed);
-			}
+			sendImages(out_images, channel, gif_speed);
 			
 		} catch (error) {
 			// The program ran into an error while executing

@@ -14,6 +14,11 @@ function save(args, channel, content, command) {
 
 	const cmd_name = args[0].toLowerCase();
 
+	if (cmd_name.length === 0 || cmd_name.length > 32) {
+		channel.send('Command name must be between 1 and 32 characters');
+		return;
+	}
+
 	db.get('SELECT code FROM functions WHERE name = ?', [cmd_name], (err, row) => {
 		if (err) {
 			channel.send(`Error checking existing function: ${err.message}`);

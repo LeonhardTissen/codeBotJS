@@ -12,17 +12,26 @@ function startBot() {
 	// Set up the message event
 	client.on('messageCreate', (message) => {
 		if (message.author.bot) return;
+
+		if (!message.content.startsWith(';')) return;
+
+		const content = message.content.slice(1);
 	
-		const [command, ...args] = message.content.replace('\n', ' ').split(' ');
+		const [command, ...args] = content.replace('\n', ' ').split(' ');
 	
-		if (command === '-save') {
-			save(args, message.channel, message.content, command);
-		} else if (command === '-raw') {
-			raw(args, message.channel);
-		} else if (command === '-load') {
-			load(args, message.channel);
-		} else if (command === '-list') {
-			list(message.channel);
+		switch (command) {
+			case 'save':
+				save(args, message.channel, message.content, command);
+				break;
+			case 'raw':
+				raw(args, message.channel);
+				break;
+			case 'load':
+				load(args, message.channel);
+				break;
+			case 'list':
+				list(message.channel);
+				break;
 		}
 	});
 	

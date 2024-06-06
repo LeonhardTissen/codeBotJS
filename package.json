@@ -1,4 +1,12 @@
 {
+  "name": "codebotjs",
+  "version": "1.0.0",
+  "description": "A Discord bot that runs JavaScript code",
+  "main": "master.js",
+  "license": "MIT",
+  "scripts": {
+    "start": "node master.js"
+  },
   "dependencies": {
     "canvas": "^2.11.2",
     "discord.js": "^14.13.0",
