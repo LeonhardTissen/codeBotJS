@@ -34,7 +34,7 @@ function save(args, channel, content, command) {
 					return;
 				}
 				channel.send(`:warning: Function \`${cmd_name}\` has been updated.\nPrevious code:`);
-				const choppedCode = previousCode.length > 1990 ? previousCode.slice(0, 1990) + '...' : previousCode;
+				const choppedCode = previousCode.length > 1950 ? previousCode.slice(0, 1950) + '...' : previousCode;
 				channel.send(`\`\`\`js\n${choppedCode}\n\`\`\``);
 			});
 		} else {
