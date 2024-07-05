@@ -15,9 +15,16 @@ function list(channel) {
 
 		let msg = 'List of available functions:\n';
 		while (rows.length > 0) {
-			while (msg.length < 2000) {
-				const row = rows.shift();
-				msg += ` \`${row.name}\``;
+			while (msg.length < 2000 && rows.length > 0) {
+				const row = rows[0];
+				const newMsg = msg + ` \`${row.name}\``;
+				
+				if (newMsg.length > 2000) {
+					break; // Exit the loop if adding this function name exceeds the limit
+				}
+				
+				msg = newMsg;
+				rows.shift();
 			}
 			channel.send(msg);
 			msg = '';
