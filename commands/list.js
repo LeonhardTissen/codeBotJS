@@ -13,8 +13,15 @@ function list(channel) {
 			return channel.send('No functions found.');
 		}
 
-		const functionNames = rows.map(row => `\`${row.name}\``).join(', ');
-		channel.send(`List of available functions:\n${functionNames}`);
+		let msg = 'List of available functions:\n';
+		while (rows.length > 0) {
+			while (msg.length < 2000) {
+				const row = rows.shift();
+				msg += ` \`${row.name}\``;
+			}
+			channel.send(msg);
+			msg = '';
+		}
 	});
 }
 
