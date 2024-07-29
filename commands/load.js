@@ -71,7 +71,12 @@ let inp = "${inp_text}";
 				json: async (url) => {
 					may_take_longer = true;
 					try {
-						const res = await fetch(url);
+						const res = await fetch(url, {
+							headers: new Headers({
+								'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+
+							})
+						});
 						return await res.json();
 					} catch (err) {}
 				},
