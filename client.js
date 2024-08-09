@@ -1,4 +1,4 @@
-const { Client, GatewayIntentBits, ActivityType, Partials } = require("discord.js");
+const { Client, GatewayIntentBits, Partials } = require("discord.js");
 
 function createClient() {
 	// Create a new Discord client
@@ -9,14 +9,7 @@ function createClient() {
 	
 	// Set up the bot's ready event
 	client.once('ready', () => {
-		console.log('Bot is ready');
-		client.user.setPresence({ 
-			activities: [{ 
-				name: 'Warze.org/cmd', 
-				type: ActivityType.Listening,
-			}], 
-			status: 'online' 
-		});
+		console.log(`Logged in as ${client.user.tag}!`);
 	});
 
 	return client;
