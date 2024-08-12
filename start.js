@@ -27,7 +27,7 @@ function startBot() {
 				raw(args, message.channel);
 				break;
 			case 'load':
-				load(args, message.channel);
+				load(args, message);
 				break;
 			case 'list':
 				list(message.channel);

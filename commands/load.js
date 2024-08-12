@@ -8,11 +8,12 @@ async function sleep(ms) {
 	return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-async function load(args, channel) {
+async function load(args, message) {
 	/*
 	Loading and executing a function
 	*/
 	const [functionName, ...parameters] = args;
+	const channel = message.channel;
 
 	db.get('SELECT code FROM functions WHERE name = ?', [functionName], async (err, row) => {
 		if (err) {
@@ -68,6 +69,9 @@ let inp = "${inp_text}";
 						return await loadImage(src);
 					} catch (err) {}
 				},
+				getMessage: () => {
+					return message;
+				},
 				json: async (url) => {
 					may_take_longer = true;
 					try {
@@ -103,7 +107,11 @@ let inp = "${inp_text}";
 			// Send them to the Discord if there are any
 			if (combined_messages !== '') {
 				if (combined_messages.length > 2000) {
-					channel.send(`Message too long (${combined_messages.length} > 2000)`)
+					// Split the message into chunks of 2000 characters
+					const chunks = combined_messages.match(/[\s\S]{1,2000}/g);
+					for (const chunk of chunks) {
+						channel.send(chunk);
+					}
 				} else {
 					channel.send(combined_messages);
 				}
